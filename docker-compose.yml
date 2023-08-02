@@ -1,0 +1,20 @@
+version: "3.8"
+
+volumes:
+  grafana-config:
+  grafana-data:
+
+
+services:
+  grafana:
+    image: grafana/grafana
+    restart: always
+    volumes:
+      - grafana-config:/etc/grafana
+      - grafana-data:/var/lib/grafana
+    env_file:
+      - .env.secret
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`grafana.home.rileymathews.com`)
+      - traefik.http.routers.grafana.tls.certresolver=le

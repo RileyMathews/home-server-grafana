@@ -48,3 +48,20 @@ services:
       - /dev/kmsg
     privileged: true
     restart: always
+
+  loki:
+    image: grafana/loki:2.4.0
+    volumes:
+      - ./etc/loki:/etc/loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/loki-config.yml
+    ports:
+      - 3100:3100
+
+  promtail:
+    image: grafana/promtail:2.4.0
+    volumes:
+      - /var/log:/var/log
+      - ./etc/promtail:/etc/promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/promtail-config.yml

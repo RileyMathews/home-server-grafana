@@ -7,14 +7,14 @@ volumes:
 services:
   grafana:
     image: grafana/grafana
-    restart: always
+    restart: unless-stopped
     volumes:
       - grafana-data:/var/lib/grafana
     env_file:
       - .env.secret
     labels:
       - traefik.enable=true
-      - traefik.http.routers.grafana.rule=Host(`grafana.home.rileymathews.com`)
+      - traefik.http.routers.grafana.rule=Host(`grafana.rileymathews.com`)
       - traefik.http.routers.grafana.tls.certresolver=le
 
   prometheus:
@@ -24,14 +24,14 @@ services:
       - ./etc/prometheus:/etc/prometheus
       - prometheus-data:/prometheus
     command: "--config.file=/etc/prometheus/prometheus.yml"
-    restart: always
+    restart: unless-stopped
 
   node_exporter:
     image: quay.io/prometheus/node-exporter:v1.5.0
     container_name: node_exporter
     command: "--path.rootfs=/host"
     pid: host
-    restart: always
+    restart: unless-stopped
     volumes:
       - /:/host:ro,rslave
 
@@ -47,7 +47,7 @@ services:
     devices:
       - /dev/kmsg
     privileged: true
-    restart: always
+    restart: unless-stopped
 
   loki:
     image: grafana/loki:2.4.0

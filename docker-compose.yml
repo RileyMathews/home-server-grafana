@@ -1,15 +1,12 @@
 version: "3.8"
 
-volumes:
-  grafana-data:
-  prometheus-data:
-
 services:
   grafana:
+    user: "1000"
     image: grafana/grafana
     restart: unless-stopped
     volumes:
-      - grafana-data:/var/lib/grafana
+      - ./var/lib/grafana:/var/lib/grafana
     env_file:
       - .env.secret
     labels:
@@ -18,11 +15,12 @@ services:
       - traefik.http.routers.grafana.tls.certresolver=le
 
   prometheus:
+    user: "1000"
     image: prom/prometheus
     container_name: prometheus
     volumes:
       - ./etc/prometheus:/etc/prometheus
-      - prometheus-data:/prometheus
+      - ./prometheus:/prometheus
     command: "--config.file=/etc/prometheus/prometheus.yml"
     restart: unless-stopped
 
@@ -49,19 +47,19 @@ services:
     privileged: true
     restart: unless-stopped
 
-  loki:
-    image: grafana/loki:2.4.0
-    volumes:
-      - ./etc/loki:/etc/loki
-    restart: unless-stopped
-    command: -config.file=/etc/loki/loki-config.yml
-    ports:
-      - 3100:3100
+  # loki:
+  #   image: grafana/loki:2.4.0
+  #   volumes:
+  #     - ./etc/loki:/etc/loki
+  #   restart: unless-stopped
+  #   command: -config.file=/etc/loki/loki-config.yml
+  #   ports:
+  #     - 3100:3100
 
-  promtail:
-    image: grafana/promtail:2.4.0
-    volumes:
-      - /var/log:/var/log
-      - ./etc/promtail:/etc/promtail
-    restart: unless-stopped
-    command: -config.file=/etc/promtail/promtail-config.yml
+  # promtail:
+  #   image: grafana/promtail:2.4.0
+  #   volumes:
+  #     - /var/log:/var/log
+  #     - ./etc/promtail:/etc/promtail
+  #   restart: unless-stopped
+  #   command: -config.file=/etc/promtail/promtail-config.yml

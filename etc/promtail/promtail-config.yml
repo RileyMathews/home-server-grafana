@@ -1,3 +1,5 @@
+# https://grafana.com/docs/loki/latest/clients/promtail/configuration/
+# https://docs.docker.com/engine/api/v1.41/#operation/ContainerList
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
@@ -9,36 +11,15 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-
-# local machine logs
-
-- job_name: local
-  static_configs:
-  - targets:
-      - localhost
-    labels:
-      job: varlogs
-      __path__: /var/log/*log
-  
-## docker logs
-
-- job_name: docker 
-  pipeline_stages:
-    - docker: {}
-  static_configs:
-    - labels:
-        job: docker
-        __path__: /var/lib/docker/containers/*/*-json.log
-
-# syslog target
-
-#- job_name: syslog
-#  syslog:
-#    listen_address: 0.0.0.0:1514 # make sure you also expose this port on the container
-#    idle_timeout: 60s
-#    label_structured_data: yes
-#    labels:
-#      job: "syslog"
-#  relabel_configs:
-#    - source_labels: ['__syslog_message_hostname']
-#      target_label: 'host'
+  - job_name: flog_scrape
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: 'logstream'
+      - source_labels: ['__meta_docker_container_label_logging_jobname']
+        target_label: 'job'

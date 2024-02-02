@@ -1,3 +1,4 @@
 .env.secret
 var
 prometheus
+etc/prometheus/prometheus.yml

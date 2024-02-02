@@ -1,4 +1,4 @@
 .env.secret
 var
-prometheus
+prometheus-volume
 etc/prometheus/prometheus.yml
